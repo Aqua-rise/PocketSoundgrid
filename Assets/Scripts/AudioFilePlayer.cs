@@ -1,0 +1,183 @@
+using System.Collections;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using UnityEngine.Networking;
+
+public class AudioFilePlayer : MonoBehaviour
+{
+    private ButtonPressDuration _buttonPressDuration;
+    private CreateNewButton _createNewButton;
+    
+    public Button selectButton; // Assign your button in the inspector
+    private GameObject _selectButtonGameObject;
+    private Image _selectButtonImageComponent;
+    public AudioSource audioSource; // Assign your AudioSource in the inspector
+    private string _audioFilePath;
+    private static int _buttonIDCounter = 0;
+    private int buttonID;
+    private int buttonSaveDataIndex;
+    private const string AudioPathKey = "AudioPath_";
+    
+    public Sprite hasAudioSprite;
+    public Sprite playingAudioSprite;
+    public Sprite pausedAudioSprite;
+    public Sprite defaultSprite;
+    
+    public TMP_Dropdown buttonOptions;
+
+    void Awake()
+    {
+        buttonID = ++_buttonIDCounter; // Assign a unique ID
+        
+        //Get the ButtonPressDuration component from the first child of this script's gameobject
+        _buttonPressDuration = transform.gameObject.GetComponentsInChildren<ButtonPressDuration>()[0];
+        
+        //Get the CreateNewButton component from the CreateNewButton gameobject
+        _createNewButton = GameObject.Find("Add Soundbutton").GetComponent<CreateNewButton>();
+    }
+
+    void Start()
+    {
+        if (selectButton != null)
+        {
+            selectButton.onClick.AddListener(OnSelectButtonClicked);
+        }
+        
+        _selectButtonGameObject = selectButton.gameObject;
+        _selectButtonImageComponent = _selectButtonGameObject.GetComponent<Image>();
+        
+        if (buttonOptions != null)
+        {
+            buttonOptions.onValueChanged.AddListener(HandleDropdownSelection);
+            buttonOptions.gameObject.SetActive(false);
+        }
+        
+        // Load the saved audio file path if it exists
+        if (PlayerPrefs.HasKey(AudioPathKey + buttonID))
+        {
+            _audioFilePath = PlayerPrefs.GetString(AudioPathKey + buttonID);
+            StartCoroutine(LoadAudio());
+        }
+        
+        //Set the buttonSaveDataIndex to the numerical position of this button as a child of this object's parent
+        buttonSaveDataIndex = transform.GetSiblingIndex();
+        Debug.Log("ButtonSaveDataIndex: " + buttonSaveDataIndex);
+    }
+
+    void OnSelectButtonClicked()
+    {
+        if (string.IsNullOrEmpty(_audioFilePath))
+        {
+            StartCoroutine(OpenFileBrowser());
+        }
+        else
+        {
+            if (audioSource.isPlaying)
+            {
+                // Set button to pausedAudio Sprite
+                _selectButtonImageComponent.sprite = pausedAudioSprite;
+                audioSource.Pause();
+            }
+            else
+            {
+                _selectButtonImageComponent.sprite = playingAudioSprite;
+                audioSource.Play();
+            }
+        }
+    }
+    
+    private void HandleDropdownSelection(int index)
+    {
+        switch (index)
+        {
+            case 1: // Restart Audio
+                audioSource.Stop();
+                _selectButtonImageComponent.sprite = hasAudioSprite;
+                break;
+            case 2: // Select Another Audio File
+                StartCoroutine(OpenFileBrowser());
+                _selectButtonImageComponent.sprite = hasAudioSprite;
+                break;
+            case 3: // Delete Audio File
+                _audioFilePath = string.Empty;
+                PlayerPrefs.DeleteKey(AudioPathKey + buttonID);
+                _selectButtonImageComponent.sprite = defaultSprite;
+                break;
+            case 4: // Remove Button, components, and save data
+                _audioFilePath = string.Empty;
+                _buttonIDCounter -= 1;
+                PlayerPrefs.DeleteKey(AudioPathKey + buttonID);
+                _buttonPressDuration.DeleteButtonSaveData();
+                _createNewButton.DeleteButtonData(buttonSaveDataIndex);
+                Destroy(gameObject);
+                break;
+            default:
+                break;
+        }
+    }
+
+    IEnumerator OpenFileBrowser()
+    {
+#if UNITY_EDITOR
+        string path = UnityEditor.EditorUtility.OpenFilePanel("Select Audio File", "", "mp3,ogg,wav");
+        if (!string.IsNullOrEmpty(path))
+        {
+            _audioFilePath = "file://" + path;
+            yield return StartCoroutine(LoadAudio());
+        }
+#elif UNITY_ANDROID || UNITY_IOS
+        NativeGallery.Permission permission = NativeGallery.GetAudioFromGallery((path) =>
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                _audioFilePath = "file://" + path;
+                StartCoroutine(LoadAudio());
+            }
+        }, "Select Audio File", "audio/*");
+
+        if (permission != NativeGallery.Permission.Granted)
+        {
+            Debug.Log("Permission to access the gallery was not granted.");
+        }
+        yield return null;
+#else
+        Debug.Log("File selection is not implemented for this platform.");
+#endif
+    }
+
+    private IEnumerator LoadAudio()
+    {
+        UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(_audioFilePath, AudioType.UNKNOWN);
+        yield return www.SendWebRequest();
+
+        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+        {
+            Debug.Log(www.error);
+        }
+        else
+        {
+            AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+            audioSource.clip = clip;
+            // Set button to hasAudio Sprite
+            _selectButtonImageComponent.sprite = hasAudioSprite;
+            
+            // Save the path to the audio file
+            PlayerPrefs.SetString(AudioPathKey + buttonID, _audioFilePath);
+            
+            Debug.Log("Audio file loaded successfully.");
+        }
+    }
+
+
+    
+    // Public method to be triggered by another script
+    public void TriggeredByExternalEvent()
+    {
+        Debug.Log("All audio paths removed.");
+        _audioFilePath = string.Empty;
+        PlayerPrefs.DeleteKey(AudioPathKey + buttonID);
+        _selectButtonImageComponent.sprite = defaultSprite;
+    }
+}

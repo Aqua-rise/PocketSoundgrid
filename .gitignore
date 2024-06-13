@@ -1,0 +1,9 @@
+Library/
+Temp/
+obj/
+Logs/
+UserSettings/
+Packages/
+.idea/
+Pocket Soundgrid.sln
+*.csproj
