@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public Button button;
-    private float longPressDuration = 0.1f; // Duration in seconds for a long press
+    private float longPressDuration = 0f; // Duration in seconds for a long press (to prevent errors)
     private bool isPointerDown = false;
     private bool isDragging = false;
     private float pointerDownTimer = 0;
@@ -23,7 +23,8 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
 
     private TMP_Dropdown optionsMenu;
     private TMP_InputField _buttonNameInputField;
-    
+
+    private bool pointerDownCheck;
 
     void Awake()
     {       
@@ -94,7 +95,17 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
     {
         if (isDragging)
         {
-            buttonParentRectTransform.SetAsLastSibling(); // Bring the button to the front
+
+                int siblingIndex = buttonParentRectTransform.GetSiblingIndex();
+                Debug.Log("Sibling index: " + siblingIndex);
+                PlayerPrefs.SetInt(_buttonMovementID + "_siblingIndex", siblingIndex);
+                PlayerPrefs.Save();
+                            
+                buttonParentRectTransform.SetAsLastSibling(); // Bring the button to the front
+                
+                // Set pointerDownCheck to true
+                pointerDownCheck = true;
+
         }
     }
 
@@ -112,6 +123,19 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
     {
         if (isDragging)
         {
+
+            if (pointerDownCheck)
+            {
+                int originalSiblingIndex = PlayerPrefs.GetInt(_buttonMovementID + "_siblingIndex");
+                                            
+                buttonParentRectTransform.SetSiblingIndex(originalSiblingIndex);
+                Debug.Log("Set sibling index to: " + originalSiblingIndex);
+                                            
+                PlayerPrefs.DeleteKey(_buttonMovementID + "_siblingIndex");
+                PlayerPrefs.Save();
+            }
+
+            pointerDownCheck = false;
             isDragging = false;
             SavePosition();
             Reset();
@@ -180,11 +204,6 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
     {
         PlayerPrefs.DeleteKey(_buttonMovementID + "_x");
         PlayerPrefs.DeleteKey(_buttonMovementID + "_y");
-        PlayerPrefs.Save();
-    }
-    
-    public void DeleteButtonNameData()
-    {
         PlayerPrefs.DeleteKey(_buttonMovementID + "_name");
         PlayerPrefs.Save();
     }

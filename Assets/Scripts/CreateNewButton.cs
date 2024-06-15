@@ -76,10 +76,9 @@ public class CreateNewButton : MonoBehaviour
     
     public void SaveAllButtonPositions()
     {
-        int childCount = buttonFolder.transform.childCount;
-        PlayerPrefs.SetInt(ButtonCountKey, childCount);
-
-        for (int i = 0; i < childCount; i++)
+        int buttonCount = buttonFolder.transform.childCount;
+        
+        for (int i = 0; i < buttonCount; i++)
         {
             Transform child = buttonFolder.transform.GetChild(i);
             PlayerPrefs.SetFloat(ButtonPositionKey + i + "_x", child.localPosition.x);
@@ -88,6 +87,8 @@ public class CreateNewButton : MonoBehaviour
             PlayerPrefs.SetFloat(ButtonScaleKey + i, child.localScale.x); // Assuming uniform scale
         }
 
+        PlayerPrefs.SetInt(ButtonCountKey, buttonCount);
+        Debug.Log("Current buttonCountKey value: " + PlayerPrefs.GetInt(ButtonCountKey, 0));
         PlayerPrefs.Save();
     }
     
@@ -98,7 +99,7 @@ public class CreateNewButton : MonoBehaviour
         PlayerPrefs.DeleteKey(ButtonPositionKey + buttonIndex + "_z");
         PlayerPrefs.DeleteKey(ButtonScaleKey + buttonIndex);
 
-        // Adjust button count
+        // Get button count
         int buttonCount = PlayerPrefs.GetInt(ButtonCountKey, 0);
         if (buttonIndex < buttonCount)
         {
@@ -116,9 +117,10 @@ public class CreateNewButton : MonoBehaviour
             PlayerPrefs.DeleteKey(ButtonPositionKey + (buttonCount - 1) + "_y");
             PlayerPrefs.DeleteKey(ButtonPositionKey + (buttonCount - 1) + "_z");
             PlayerPrefs.DeleteKey(ButtonScaleKey + (buttonCount - 1));
-            PlayerPrefs.SetInt(ButtonCountKey, buttonCount - 1);
+            
         }
 
+        PlayerPrefs.SetInt(ButtonCountKey, buttonCount - 1);        
         PlayerPrefs.Save();
     }
     

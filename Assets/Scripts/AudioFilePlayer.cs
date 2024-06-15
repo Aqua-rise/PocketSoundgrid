@@ -106,11 +106,11 @@ public class AudioFilePlayer : MonoBehaviour
                 _selectButtonImageComponent.sprite = defaultSprite;
                 break;
             case 4: // Remove Button, components, and save data
-                _audioFilePath = string.Empty;
-                _buttonIDCounter -= 1;
-                PlayerPrefs.DeleteKey(AudioPathKey + buttonID);
-                _buttonPressDuration.DeleteButtonSaveData();
-                _createNewButton.DeleteButtonData(buttonSaveDataIndex);
+                _audioFilePath = string.Empty; // Set the audio file path to an empty string
+                _buttonIDCounter -= 1; // Decrement the button ID counter
+                PlayerPrefs.DeleteKey(AudioPathKey + buttonID); // Delete the audio file path from the player prefs
+                _buttonPressDuration.DeleteButtonSaveData(); // Call method to delete button position data
+                _createNewButton.DeleteButtonData(buttonSaveDataIndex); // Call method to delete button load data using the position this object is at in as a child of its parent
                 Destroy(gameObject);
                 break;
             default:
@@ -169,9 +169,6 @@ public class AudioFilePlayer : MonoBehaviour
             Debug.Log("Audio file loaded successfully.");
         }
     }
-
-
-    
     // Public method to be triggered by another script
     public void TriggeredByExternalEvent()
     {
@@ -180,4 +177,5 @@ public class AudioFilePlayer : MonoBehaviour
         PlayerPrefs.DeleteKey(AudioPathKey + buttonID);
         _selectButtonImageComponent.sprite = defaultSprite;
     }
+
 }
