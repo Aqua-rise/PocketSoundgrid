@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class CreateNewButton : MonoBehaviour
 {
     private ButtonModeManaging _buttonModeManaging;
+    private ButtonGridManagement _buttonGridManagement;
     public GameObject buttonPrefab;
     public Vector3 buttonSpawnPosition;
     public GameObject buttonFolder;
@@ -12,17 +13,27 @@ public class CreateNewButton : MonoBehaviour
     private const string ButtonPositionKey = "ButtonPosition_";
     private const string ButtonScaleKey = "ButtonScale_";
 
+    public bool autoManageGrid;
     void Start()
     {
+
+        if (autoManageGrid)
+        {
+            // Get the ButtonGridManagement component from the ButtonGridManager gameobject
+            _buttonGridManagement = GameObject.Find("ButtonGridManager")?.GetComponent<ButtonGridManagement>();
+                    
+            // Run the RunMethods method
+            if (_buttonGridManagement != null) _buttonGridManagement.RunMethods();
+        }
+        
         // Load the saved button details
         LoadButtons();
         
-        // Get the ButtonModeManaging component
+        // Get the ButtonModeManaging component from the ButtonModeManager gameobject
         _buttonModeManaging = GameObject.Find("ButtonModeManager")?.GetComponent<ButtonModeManaging>();
         
         // Add Listeners to all current buttons
-        _buttonModeManaging.AddListenersToAllCurrentButtons();
-        
+        if (_buttonModeManaging != null) _buttonModeManaging.AddListenersToAllCurrentButtons();
     }
 
     public void InstantiateButtonPrefab()
@@ -62,14 +73,16 @@ public class CreateNewButton : MonoBehaviour
 
         for (int i = 0; i < buttonCount; i++)
         {
-            float x = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_x");
+            /*float x = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_x");
             float y = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_y");
-            float z = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_z");
+            float z = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_z");*/
             float scale = PlayerPrefs.GetFloat(ButtonScaleKey + i);
 
             GameObject newButton = Instantiate(buttonPrefab, buttonSpawnPosition, Quaternion.identity);
             newButton.transform.SetParent(buttonFolder.transform, false);
-            newButton.transform.localPosition = new Vector3(x, y, z);
+            
+            
+            
             newButton.transform.localScale = new Vector3(scale, scale, scale);
         }
     }

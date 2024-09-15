@@ -50,24 +50,26 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
 
     void Update()
     {
-
         if (isPointerDown && !isDragging && isInMoveMode)
         {
             pointerDownTimer += Time.deltaTime;
             if (pointerDownTimer >= longPressDuration)
             {
                 
-                EnableDragging();
+                SetIsDragging(true);
             }
         }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        
         isPointerDown = true;
         pointerDownTimer = 0;
         if (isInEditMode)
         {
+            //Make the button un-interactable
+            button.interactable = false;
             if (optionsMenu.gameObject.activeSelf)
                 optionsMenu.gameObject.SetActive(false);
             else
@@ -82,12 +84,13 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         if (!isDragging)
         {
             Reset();
+            button.interactable = true;
         }
     }
 
-    void EnableDragging()
+    void SetIsDragging(bool value)
     {
-        isDragging = true;
+        isDragging = value;
         originalPosition = buttonParentRectTransform.anchoredPosition;
     }
 
@@ -95,7 +98,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
     {
         if (isDragging)
         {
-
+            button.interactable = false;
                 int siblingIndex = buttonParentRectTransform.GetSiblingIndex();
                 Debug.Log("Sibling index: " + siblingIndex);
                 PlayerPrefs.SetInt(_buttonMovementID + "_siblingIndex", siblingIndex);
@@ -105,7 +108,6 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
                 
                 // Set pointerDownCheck to true
                 pointerDownCheck = true;
-
         }
     }
 
@@ -115,9 +117,17 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         {
             Vector2 localPoint;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(buttonParentRectTransform.parent as RectTransform, eventData.position, eventData.pressEventCamera, out localPoint);
+        
+            // Round the position to the nearest 100
+            localPoint.x = Mathf.Round(localPoint.x / 25) * 25;
+            localPoint.y = Mathf.Round(localPoint.y / 25) * 25;
+        
             buttonParentRectTransform.anchoredPosition = localPoint;
         }
     }
+
+
+
 
     public void OnEndDrag(PointerEventData eventData)
     {
@@ -137,6 +147,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
 
             pointerDownCheck = false;
             isDragging = false;
+            button.interactable = true;
             SavePosition();
             Reset();
         }
