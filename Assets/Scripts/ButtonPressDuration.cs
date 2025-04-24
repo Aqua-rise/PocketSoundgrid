@@ -30,7 +30,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
     {       
         //Get the optionsMenu dropdown from the fellow children of this Gameobject's parent
         optionsMenu = button.transform.parent.GetComponentsInChildren<TMP_Dropdown>()[0];
-             
+        
         _buttonMovementID = ++_buttonMovementIDCounter; // Assign a unique ID
         buttonParentRectTransform = button.transform.parent.GetComponent<RectTransform>();
         
@@ -66,6 +66,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         
         isPointerDown = true;
         pointerDownTimer = 0;
+        Debug.Log("Button was pressed");
         if (isInEditMode)
         {
             //Make the button un-interactable
@@ -153,9 +154,8 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         }
     }
 
-    void SavePosition()
+    public void SavePosition()
     {
-        
         PlayerPrefs.SetFloat(_buttonMovementID + "_x", buttonParentRectTransform.anchoredPosition.x);
         PlayerPrefs.SetFloat(_buttonMovementID + "_y", buttonParentRectTransform.anchoredPosition.y);
         PlayerPrefs.Save();

@@ -9,33 +9,35 @@ public class AudioFilePlayer : MonoBehaviour
 {
     private ButtonPressDuration _buttonPressDuration;
     private CreateNewButton _createNewButton;
-    
-    public Button selectButton; // Assign your button in the inspector
+
+    public Button selectButton;
     private GameObject _selectButtonGameObject;
     private Image _selectButtonImageComponent;
-    public AudioSource audioSource; // Assign your AudioSource in the inspector
+    public AudioSource audioSource; 
     private string _audioFilePath;
     private static int _buttonIDCounter = 0;
     private int buttonID;
     private int buttonSaveDataIndex;
     private const string AudioPathKey = "AudioPath_";
-    
+    private bool triggerResetAudio = true;
+    private bool buttonManuallyPressed = false;
+
     public Sprite hasAudioSprite;
     public Sprite playingAudioSprite;
     public Sprite pausedAudioSprite;
     public Sprite defaultSprite;
-    
+
     public TMP_Dropdown buttonOptions;
 
     void Awake()
     {
         buttonID = ++_buttonIDCounter; // Assign a unique ID
-        
-        //Get the ButtonPressDuration component from the first child of this script's gameobject
+
+        // Get the ButtonPressDuration component from the first child of this script's gameobject
         _buttonPressDuration = transform.gameObject.GetComponentsInChildren<ButtonPressDuration>()[0];
-        
-        //Get the CreateNewButton component from the CreateNewButton gameobject
-        _createNewButton = GameObject.Find("Add Soundbutton").GetComponent<CreateNewButton>();
+
+        // Get the CreateNewButton component from the CreateNewButton gameobject
+        _createNewButton = GameObject.Find("CreateNewButtonManager").GetComponent<CreateNewButton>();
     }
 
     void Start()
@@ -44,26 +46,40 @@ public class AudioFilePlayer : MonoBehaviour
         {
             selectButton.onClick.AddListener(OnSelectButtonClicked);
         }
-        
+
         _selectButtonGameObject = selectButton.gameObject;
         _selectButtonImageComponent = _selectButtonGameObject.GetComponent<Image>();
-        
+
         if (buttonOptions != null)
         {
             buttonOptions.onValueChanged.AddListener(HandleDropdownSelection);
             buttonOptions.gameObject.SetActive(false);
         }
-        
+
         // Load the saved audio file path if it exists
         if (PlayerPrefs.HasKey(AudioPathKey + buttonID))
         {
             _audioFilePath = PlayerPrefs.GetString(AudioPathKey + buttonID);
             StartCoroutine(LoadAudio());
         }
-        
-        //Set the buttonSaveDataIndex to the numerical position of this button as a child of this object's parent
+
+        // Set the buttonSaveDataIndex to the numerical position of this button as a child of this object's parent
         buttonSaveDataIndex = transform.GetSiblingIndex();
         Debug.Log("ButtonSaveDataIndex: " + buttonSaveDataIndex);
+    }
+
+    void Update()
+    {
+        // Check if the audio has stopped playing
+        if (!audioSource.isPlaying && audioSource.clip != null && !buttonManuallyPressed)
+        {
+            HandleAudioStopped();
+        }
+        
+        if (audioSource.isPlaying && !triggerResetAudio)
+        {
+            triggerResetAudio = true;
+        }
     }
 
     void OnSelectButtonClicked()
@@ -78,16 +94,18 @@ public class AudioFilePlayer : MonoBehaviour
             {
                 // Set button to pausedAudio Sprite
                 _selectButtonImageComponent.sprite = pausedAudioSprite;
+                SetButtonManuallyPressed(true);
                 audioSource.Pause();
             }
             else
             {
                 _selectButtonImageComponent.sprite = playingAudioSprite;
+                SetButtonManuallyPressed(false);
                 audioSource.Play();
             }
         }
     }
-    
+
     private void HandleDropdownSelection(int index)
     {
         switch (index)
@@ -118,34 +136,46 @@ public class AudioFilePlayer : MonoBehaviour
         }
     }
 
-    IEnumerator OpenFileBrowser()
+    private void HandleAudioStopped()
     {
-#if UNITY_EDITOR
-        string path = UnityEditor.EditorUtility.OpenFilePanel("Select Audio File", "", "mp3,ogg,wav");
-        if (!string.IsNullOrEmpty(path))
-        {
-            _audioFilePath = "file://" + path;
-            yield return StartCoroutine(LoadAudio());
-        }
-#elif UNITY_ANDROID || UNITY_IOS
-        NativeGallery.Permission permission = NativeGallery.GetAudioFromGallery((path) =>
-        {
-            if (!string.IsNullOrEmpty(path))
-            {
-                _audioFilePath = "file://" + path;
-                StartCoroutine(LoadAudio());
-            }
-        }, "Select Audio File", "audio/*");
-
-        if (permission != NativeGallery.Permission.Granted)
-        {
-            Debug.Log("Permission to access the gallery was not granted.");
-        }
-        yield return null;
-#else
-        Debug.Log("File selection is not implemented for this platform.");
-#endif
+        //Debug.Log("Attempted to reset audio for button : " + buttonID);
+        if (!triggerResetAudio) return;
+        
+        Debug.Log("Detected Audio ended for button : " + buttonID);
+        // Reset button appearance
+        _selectButtonImageComponent.sprite = hasAudioSprite;
+        // Reset the triggerResetAudio flag
+        triggerResetAudio = false;
     }
+
+    IEnumerator OpenFileBrowser()
+         {
+     #if UNITY_EDITOR
+             string path = UnityEditor.EditorUtility.OpenFilePanel("Select Audio File", "", "mp3,ogg,wav");
+             if (!string.IsNullOrEmpty(path))
+             {
+                 _audioFilePath = "file://" + path;
+                 yield return StartCoroutine(LoadAudio());
+             }
+     #elif UNITY_ANDROID || UNITY_IOS
+             NativeGallery.Permission permission = NativeGallery.GetAudioFromGallery((path) =>
+             {
+                 if (!string.IsNullOrEmpty(path))
+                 {
+                     _audioFilePath = "file://" + path;
+                     StartCoroutine(LoadAudio());
+                 }
+             }, "Select Audio File", "audio/*");
+     
+             if (permission != NativeGallery.Permission.Granted)
+             {
+                 Debug.Log("Permission to access the gallery was not granted.");
+             }
+             yield return null;
+     #else
+             Debug.Log("File selection is not implemented for this platform.");
+     #endif
+         }
 
     private IEnumerator LoadAudio()
     {
@@ -162,13 +192,14 @@ public class AudioFilePlayer : MonoBehaviour
             audioSource.clip = clip;
             // Set button to hasAudio Sprite
             _selectButtonImageComponent.sprite = hasAudioSprite;
-            
+
             // Save the path to the audio file
             PlayerPrefs.SetString(AudioPathKey + buttonID, _audioFilePath);
-            
+
             Debug.Log("Audio file loaded successfully.");
         }
     }
+
     // Public method to be triggered by another script
     public void TriggeredByExternalEvent()
     {
@@ -178,4 +209,9 @@ public class AudioFilePlayer : MonoBehaviour
         _selectButtonImageComponent.sprite = defaultSprite;
     }
 
+    public void SetButtonManuallyPressed(bool value)
+    {
+        buttonManuallyPressed = value;
+        Debug.Log("Button pressed set to " + value);
+    }
 }

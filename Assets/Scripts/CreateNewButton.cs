@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
 
 public class CreateNewButton : MonoBehaviour
 {
@@ -14,6 +17,8 @@ public class CreateNewButton : MonoBehaviour
     private const string ButtonScaleKey = "ButtonScale_";
 
     public bool autoManageGrid;
+    
+    
     void Start()
     {
 
@@ -35,22 +40,20 @@ public class CreateNewButton : MonoBehaviour
         // Add Listeners to all current buttons
         if (_buttonModeManaging != null) _buttonModeManaging.AddListenersToAllCurrentButtons();
     }
-
-    public void InstantiateButtonPrefab()
+    
+    public void InstantiateButtonPrefabAtLocation(Vector3 spawnPosition)
     {
         // Instantiate the buttonPrefab at buttonSpawnPosition &
         // set the instantiated buttonPrefab to be the child of buttonFolder
-        GameObject newButton = Instantiate(buttonPrefab, buttonSpawnPosition, Quaternion.identity);
-        newButton.transform.SetParent(buttonFolder.transform, false);
+        GameObject newButton = Instantiate(buttonPrefab, spawnPosition, Quaternion.identity);
+        newButton.transform.SetParent(buttonFolder.transform, true);
 
         // Set the scale to 0.75
         newButton.transform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
-
-        // Set the position to (0, 0, 0)
-        newButton.transform.localPosition = Vector3.zero;
-
+        
         // Save the new button details
         SaveButton(newButton);
+        newButton.GetComponentInChildren<ButtonPressDuration>().SavePosition();
         
         // Add a listener to the new button
         _buttonModeManaging.AddListenerToButton(newButton);
@@ -66,7 +69,7 @@ public class CreateNewButton : MonoBehaviour
         PlayerPrefs.SetInt(ButtonCountKey, buttonCount + 1);
         PlayerPrefs.Save();
     }
-
+    
     private void LoadButtons()
     {
         int buttonCount = PlayerPrefs.GetInt(ButtonCountKey, 0);
@@ -80,8 +83,6 @@ public class CreateNewButton : MonoBehaviour
 
             GameObject newButton = Instantiate(buttonPrefab, buttonSpawnPosition, Quaternion.identity);
             newButton.transform.SetParent(buttonFolder.transform, false);
-            
-            
             
             newButton.transform.localScale = new Vector3(scale, scale, scale);
         }
@@ -136,5 +137,6 @@ public class CreateNewButton : MonoBehaviour
         PlayerPrefs.SetInt(ButtonCountKey, buttonCount - 1);        
         PlayerPrefs.Save();
     }
+    
     
 }
