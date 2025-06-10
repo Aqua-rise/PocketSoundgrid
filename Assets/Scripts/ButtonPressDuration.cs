@@ -20,6 +20,8 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
     private bool isInMusicMode = true;
     private bool isInMoveMode;
     private bool isInEditMode;
+    private bool isInLinkMode;
+    private bool isInLoopMode;
 
     private TMP_Dropdown optionsMenu;
     private TMP_InputField _buttonNameInputField;
@@ -224,6 +226,8 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         isInMusicMode = true;
         isInMoveMode = false;
         isInEditMode = false;
+        isInLinkMode = false;
+        isInLoopMode = false;
     }
     
     public void MoveButtonPressed()
@@ -231,6 +235,8 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         isInMusicMode = false;
         isInMoveMode = true;
         isInEditMode = false;
+        isInLinkMode = false;
+        isInLoopMode = false;
     }
     
     public void EditButtonPressed()
@@ -238,6 +244,26 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         isInMusicMode = false;
         isInMoveMode = false;
         isInEditMode = true;
+        isInLinkMode = false;
+        isInLoopMode = false;
+    }
+    
+    public void LinkButtonPressed()
+    {
+        isInMusicMode = false;
+        isInMoveMode = false;
+        isInEditMode = false;
+        isInLinkMode = true;
+        isInLoopMode = false;
+    }
+    
+    public void LoopButtonPressed()
+    {
+        isInMusicMode = false;
+        isInMoveMode = false;
+        isInEditMode = false;
+        isInLinkMode = false;
+        isInLoopMode = true;
     }
     
     

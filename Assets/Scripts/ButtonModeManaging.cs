@@ -9,7 +9,12 @@ public class ButtonModeManaging : MonoBehaviour
     public UnityEvent musicModeButtonEvent;
     public UnityEvent moveModeButtonEvent;
     public UnityEvent editModeButtonEvent;
+    public UnityEvent linkModeButtonEvent;
+    public UnityEvent loopModeButtonEvent;
     public GameObject audioButtonFolder;
+
+    public bool isInLoopMode;
+    public bool isInLinkMode;
 
     
     void Start()
@@ -36,6 +41,8 @@ public class ButtonModeManaging : MonoBehaviour
                 musicModeButtonEvent.AddListener(button.MusicButtonPressed);
                 moveModeButtonEvent.AddListener(button.MoveButtonPressed);
                 editModeButtonEvent.AddListener(button.EditButtonPressed);
+                linkModeButtonEvent.AddListener(button.LinkButtonPressed);
+                loopModeButtonEvent.AddListener(button.LoopButtonPressed);
             }
         }
     }
@@ -49,6 +56,8 @@ public class ButtonModeManaging : MonoBehaviour
             musicModeButtonEvent.AddListener(button.MusicButtonPressed);
             moveModeButtonEvent.AddListener(button.MoveButtonPressed);
             editModeButtonEvent.AddListener(button.EditButtonPressed);
+            linkModeButtonEvent.AddListener(button.LinkButtonPressed);
+            loopModeButtonEvent.AddListener(button.LoopButtonPressed);
         }
         
     }
@@ -57,15 +66,36 @@ public class ButtonModeManaging : MonoBehaviour
     public void TriggerMusicModeEvent()
     {
         musicModeButtonEvent.Invoke();
+        isInLoopMode = false;
+        isInLinkMode = false;
     }
 
     public void TriggerMoveModeEvent()
     {
         moveModeButtonEvent.Invoke();
+        isInLoopMode = false;
+        isInLinkMode = false;
     }
     
     public void TriggerEditModeEvent()
     {
         editModeButtonEvent.Invoke();
+        isInLoopMode = false;
+        isInLinkMode = false;
+
+    }
+    
+    public void TriggerLinkModeEvent()
+    {
+        linkModeButtonEvent.Invoke();
+        isInLoopMode = false;
+        isInLinkMode = true;
+    }
+    
+    public void TriggerLoopModeEvent()
+    {
+        loopModeButtonEvent.Invoke();
+        isInLoopMode = true;
+        isInLinkMode = false;
     }
 }

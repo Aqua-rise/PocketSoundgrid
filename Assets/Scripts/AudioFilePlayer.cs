@@ -9,6 +9,8 @@ public class AudioFilePlayer : MonoBehaviour
 {
     private ButtonPressDuration _buttonPressDuration;
     private CreateNewButton _createNewButton;
+    private ButtonModeManaging _buttonModeManaging;
+    private ButtonLinkingManager _buttonLinkingManager;
 
     public Button selectButton;
     private GameObject _selectButtonGameObject;
@@ -21,6 +23,7 @@ public class AudioFilePlayer : MonoBehaviour
     private const string AudioPathKey = "AudioPath_";
     private bool triggerResetAudio = true;
     private bool buttonManuallyPressed = false;
+    private bool _isFirstInLink;
 
     public Sprite hasAudioSprite;
     public Sprite playingAudioSprite;
@@ -38,15 +41,16 @@ public class AudioFilePlayer : MonoBehaviour
 
         // Get the CreateNewButton component from the CreateNewButton gameobject
         _createNewButton = GameObject.Find("CreateNewButtonManager").GetComponent<CreateNewButton>();
+        
+        // Get the ButtonModeManaging component from the ButtonModeManager gameobject
+        _buttonModeManaging = GameObject.Find("ButtonModeManager").GetComponent<ButtonModeManaging>();
+        
+        // Get the ButtonLinkManager component from the ButtonLinkManager gameobject
+        _buttonLinkingManager = GameObject.Find("ButtonLinkManager").GetComponent<ButtonLinkingManager>();
     }
 
     void Start()
     {
-        if (selectButton != null)
-        {
-            selectButton.onClick.AddListener(OnSelectButtonClicked);
-        }
-
         _selectButtonGameObject = selectButton.gameObject;
         _selectButtonImageComponent = _selectButtonGameObject.GetComponent<Image>();
 
@@ -82,8 +86,13 @@ public class AudioFilePlayer : MonoBehaviour
         }
     }
 
-    void OnSelectButtonClicked()
+    public void OnSelectButtonClicked()
     {
+        if (_buttonModeManaging.isInLinkMode)
+        {
+            _isFirstInLink = _buttonLinkingManager.SendToButtonLinkingManager(this);
+            return;
+        }
         if (string.IsNullOrEmpty(_audioFilePath))
         {
             StartCoroutine(OpenFileBrowser());
@@ -92,6 +101,11 @@ public class AudioFilePlayer : MonoBehaviour
         {
             if (audioSource.isPlaying)
             {
+                if (_buttonModeManaging.isInLoopMode)
+                {
+                    audioSource.loop = true;
+                    return;
+                }
                 // Set button to pausedAudio Sprite
                 _selectButtonImageComponent.sprite = pausedAudioSprite;
                 SetButtonManuallyPressed(true);
@@ -99,13 +113,19 @@ public class AudioFilePlayer : MonoBehaviour
             }
             else
             {
+                // Set button to playingAudioSprite
                 _selectButtonImageComponent.sprite = playingAudioSprite;
                 SetButtonManuallyPressed(false);
+                audioSource.loop = _buttonModeManaging.isInLoopMode;
                 audioSource.Play();
+                if (_isFirstInLink)
+                {
+                    _buttonLinkingManager.StartLinkedAudio();
+                    return;
+                }
             }
         }
     }
-
     private void HandleDropdownSelection(int index)
     {
         switch (index)
@@ -136,7 +156,7 @@ public class AudioFilePlayer : MonoBehaviour
         }
     }
 
-    private void HandleAudioStopped()
+    public void HandleAudioStopped()
     {
         //Debug.Log("Attempted to reset audio for button : " + buttonID);
         if (!triggerResetAudio) return;
@@ -213,5 +233,10 @@ public class AudioFilePlayer : MonoBehaviour
     {
         buttonManuallyPressed = value;
         Debug.Log("Button pressed set to " + value);
+    }
+
+    public void SetIsFirstInList(bool value)
+    {
+        _isFirstInLink = value;
     }
 }

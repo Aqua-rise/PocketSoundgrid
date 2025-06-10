@@ -10,9 +10,13 @@ public class ButtonModeColorManager : MonoBehaviour
     public Button musicModeButton;
     public Button moveModeButton;
     public Button editModeButton;
+    public Button loopModeButton;
+    public Button linkModeButton;
     
     public Color musicModeColor = Color.green;
     public Color moveModeColor = Color.blue;
+    public Color loopModeColor = Color.yellow;
+    public Color linkModeColor = Color.magenta;
     public Color editModeColor = Color.HSVToRGB(30f / 360f, 1f, 1f);
     public float duration = 0.4f;
 
@@ -29,6 +33,14 @@ public class ButtonModeColorManager : MonoBehaviour
         if (editModeButton != null)
         {
             editModeButton.onClick.AddListener(() => StartCoroutine(ChangeColorOverTime(targetImage, editModeColor, duration)));
+        }
+        if (loopModeButton != null)
+        {
+            loopModeButton.onClick.AddListener(() => StartCoroutine(ChangeColorOverTime(targetImage, loopModeColor, duration)));
+        }
+        if (linkModeButton != null)
+        {
+            linkModeButton.onClick.AddListener(() => StartCoroutine(ChangeColorOverTime(targetImage, linkModeColor, duration)));
         }
     }
 
