@@ -905,7 +905,7 @@ MonoBehaviour:
   playingAudioSprite: {fileID: 21300000, guid: 32f2411cc0ac835478db6764ecbd8bb4, type: 3}
   pausedAudioSprite: {fileID: 21300000, guid: c649bb77b28a0964889632e65fd6c454, type: 3}
   defaultSprite: {fileID: 21300000, guid: 8f6a23ccd3faad34092e442283659cfb, type: 3}
-  buttonOptions: {fileID: 3105424344433126005}
+  buttonNameInputField: {fileID: 3105424344217510689}
 --- !u!1 &3105424343710922526
 GameObject:
   m_ObjectHideFlags: 0
@@ -1446,10 +1446,10 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3105424344439543694}
-        m_TargetAssemblyTypeName: ButtonPressDuration, Assembly-CSharp
-        m_MethodName: OnButtonInputFieldValueChanged
-        m_Mode: 1
+      - m_Target: {fileID: 3105424343649606739}
+        m_TargetAssemblyTypeName: AudioFilePlayer, Assembly-CSharp
+        m_MethodName: UpdateButtonNameText
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1776,6 +1776,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 3105424343649606739}
+        m_TargetAssemblyTypeName: AudioFilePlayer, Assembly-CSharp
+        m_MethodName: HandleDropdownSelection
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_AlphaFadeSpeed: 0.15
 --- !u!1 &3105424344439543697
 GameObject:
@@ -1923,6 +1935,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8474d6d4ef86f5c4aa6700d1cfdfa9f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioFilePlayer: {fileID: 3105424343649606739}
   button: {fileID: 3105424344439543699}
 --- !u!1 &3105424344668406377
 GameObject:

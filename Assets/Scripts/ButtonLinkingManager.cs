@@ -86,7 +86,7 @@ public class ButtonLinkingManager : MonoBehaviour
         }
     }
 
-    private void UpdateLinePositions()
+    public void UpdateLinePositions()
     {
         lineRenderer.positionCount = _soundButtonAudioScripts.Count;
         

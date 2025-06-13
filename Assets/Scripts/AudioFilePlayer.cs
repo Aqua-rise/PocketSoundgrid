@@ -17,9 +17,7 @@ public class AudioFilePlayer : MonoBehaviour
     private Image _selectButtonImageComponent;
     public AudioSource audioSource; 
     private string _audioFilePath;
-    private static int _buttonIDCounter = 0;
     private int buttonID;
-    private int buttonSaveDataIndex;
     private const string AudioPathKey = "AudioPath_";
     private bool triggerResetAudio = true;
     private bool buttonManuallyPressed = false;
@@ -30,12 +28,10 @@ public class AudioFilePlayer : MonoBehaviour
     public Sprite pausedAudioSprite;
     public Sprite defaultSprite;
 
-    public TMP_Dropdown buttonOptions;
+    public TMP_InputField buttonNameInputField;
 
     void Awake()
     {
-        buttonID = ++_buttonIDCounter; // Assign a unique ID
-
         // Get the ButtonPressDuration component from the first child of this script's gameobject
         _buttonPressDuration = transform.gameObject.GetComponentsInChildren<ButtonPressDuration>()[0];
 
@@ -53,23 +49,6 @@ public class AudioFilePlayer : MonoBehaviour
     {
         _selectButtonGameObject = selectButton.gameObject;
         _selectButtonImageComponent = _selectButtonGameObject.GetComponent<Image>();
-
-        if (buttonOptions != null)
-        {
-            buttonOptions.onValueChanged.AddListener(HandleDropdownSelection);
-            buttonOptions.gameObject.SetActive(false);
-        }
-
-        // Load the saved audio file path if it exists
-        if (PlayerPrefs.HasKey(AudioPathKey + buttonID))
-        {
-            _audioFilePath = PlayerPrefs.GetString(AudioPathKey + buttonID);
-            StartCoroutine(LoadAudio());
-        }
-
-        // Set the buttonSaveDataIndex to the numerical position of this button as a child of this object's parent
-        buttonSaveDataIndex = transform.GetSiblingIndex();
-        Debug.Log("ButtonSaveDataIndex: " + buttonSaveDataIndex);
     }
 
     void Update()
@@ -84,6 +63,46 @@ public class AudioFilePlayer : MonoBehaviour
         {
             triggerResetAudio = true;
         }
+    }
+
+    public void LoadSavedAudio(string audioPath)
+    {
+        // Load the saved audio file path if it exists
+        if (audioPath!=null)
+        {
+            _audioFilePath = audioPath;
+            StartCoroutine(LoadAudio());
+        }
+    }
+
+    public void LoadSavedName(string buttonName)
+    {
+        buttonNameInputField.text = buttonName;
+    }
+
+    public void UpdateButtonNameText(string newName)
+    {
+        buttonNameInputField.text = newName;
+        SaveSystem.EditButtonData(buttonID, data =>
+        {
+            data.buttonName = newName;
+            //data.audioPath = "Assets/Audio/newclip.wav";
+            //data.posX = 1.5f;
+        });
+    }
+
+    public void SetButtonID(int value)
+    {
+        buttonID = value;
+    }
+
+    public void SaveButtonPosition(float xPos, float yPos)
+    {
+        SaveSystem.EditButtonData(buttonID, data =>
+        {
+            data.posX = xPos;
+            data.posY = yPos;
+        });
     }
 
     public void OnSelectButtonClicked()
@@ -126,7 +145,7 @@ public class AudioFilePlayer : MonoBehaviour
             }
         }
     }
-    private void HandleDropdownSelection(int index)
+    public void HandleDropdownSelection(int index)
     {
         switch (index)
         {
@@ -137,18 +156,22 @@ public class AudioFilePlayer : MonoBehaviour
             case 2: // Select Another Audio File
                 StartCoroutine(OpenFileBrowser());
                 _selectButtonImageComponent.sprite = hasAudioSprite;
+                SaveSystem.EditButtonData(buttonID, data =>
+                {
+                    data.audioPath = _audioFilePath;
+                });
                 break;
-            case 3: // Delete Audio File
+            case 3: // Delete Audio File Reference
                 _audioFilePath = string.Empty;
-                PlayerPrefs.DeleteKey(AudioPathKey + buttonID);
+                SaveSystem.EditButtonData(buttonID, data =>
+                {
+                    data.audioPath = _audioFilePath;
+                });
                 _selectButtonImageComponent.sprite = defaultSprite;
                 break;
             case 4: // Remove Button, components, and save data
                 _audioFilePath = string.Empty; // Set the audio file path to an empty string
-                _buttonIDCounter -= 1; // Decrement the button ID counter
-                PlayerPrefs.DeleteKey(AudioPathKey + buttonID); // Delete the audio file path from the player prefs
-                _buttonPressDuration.DeleteButtonSaveData(); // Call method to delete button position data
-                _createNewButton.DeleteButtonData(buttonSaveDataIndex); // Call method to delete button load data using the position this object is at in as a child of its parent
+                SaveSystem.RemoveButtonData(buttonID);
                 Destroy(gameObject);
                 break;
             default:
@@ -214,7 +237,10 @@ public class AudioFilePlayer : MonoBehaviour
             _selectButtonImageComponent.sprite = hasAudioSprite;
 
             // Save the path to the audio file
-            PlayerPrefs.SetString(AudioPathKey + buttonID, _audioFilePath);
+            SaveSystem.EditButtonData(buttonID, data =>
+            {
+                data.audioPath = _audioFilePath;
+            });
 
             Debug.Log("Audio file loaded successfully.");
         }
@@ -238,5 +264,30 @@ public class AudioFilePlayer : MonoBehaviour
     public void SetIsFirstInList(bool value)
     {
         _isFirstInLink = value;
+    }
+
+    public int GetButtonID()
+    {
+        return buttonID;
+    }
+
+    public bool isInMoveMode()
+    {
+        return _buttonModeManaging.isInMoveMode;
+    }
+    
+    public bool isInEditMode()
+    {
+        return _buttonModeManaging.isInEditMode;
+    }
+    
+    public bool isInLoopMode()
+    {
+        return _buttonModeManaging.isInLoopMode;
+    }
+    
+    public bool isInLinkMode()
+    {
+        return _buttonModeManaging.isInLinkMode;
     }
 }

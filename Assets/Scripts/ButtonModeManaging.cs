@@ -1,100 +1,56 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class ButtonModeManaging : MonoBehaviour
 {
-    
-    public UnityEvent musicModeButtonEvent;
-    public UnityEvent moveModeButtonEvent;
-    public UnityEvent editModeButtonEvent;
-    public UnityEvent linkModeButtonEvent;
-    public UnityEvent loopModeButtonEvent;
-    public GameObject audioButtonFolder;
 
+    public bool isInMusicMode = true;
+    public bool isInMoveMode;
+    public bool isInEditMode;
     public bool isInLoopMode;
     public bool isInLinkMode;
 
-    
-    void Start()
-    {
-        if (musicModeButtonEvent == null)
-            musicModeButtonEvent = new UnityEvent();
-        
-        if (moveModeButtonEvent == null)
-            moveModeButtonEvent = new UnityEvent();
-        
-        if (editModeButtonEvent == null)
-            editModeButtonEvent = new UnityEvent();
-        
-    }
 
-    public void AddListenersToAllCurrentButtons()
+    public void TriggerMusicMode()
     {
-        // Get all ButtonPressDuration components in the children of the specified parent object
-        if (audioButtonFolder != null)
-        {
-            ButtonPressDuration[] buttonPressDuration = audioButtonFolder.GetComponentsInChildren<ButtonPressDuration>();
-            foreach (ButtonPressDuration button in buttonPressDuration)
-            {
-                musicModeButtonEvent.AddListener(button.MusicButtonPressed);
-                moveModeButtonEvent.AddListener(button.MoveButtonPressed);
-                editModeButtonEvent.AddListener(button.EditButtonPressed);
-                linkModeButtonEvent.AddListener(button.LinkButtonPressed);
-                loopModeButtonEvent.AddListener(button.LoopButtonPressed);
-            }
-        }
-    }
-
-    public void AddListenerToButton(GameObject soundButton)
-    {
-        
-        ButtonPressDuration[] buttonPressDuration = soundButton.GetComponentsInChildren<ButtonPressDuration>();
-        foreach (ButtonPressDuration button in buttonPressDuration)
-        {
-            musicModeButtonEvent.AddListener(button.MusicButtonPressed);
-            moveModeButtonEvent.AddListener(button.MoveButtonPressed);
-            editModeButtonEvent.AddListener(button.EditButtonPressed);
-            linkModeButtonEvent.AddListener(button.LinkButtonPressed);
-            loopModeButtonEvent.AddListener(button.LoopButtonPressed);
-        }
-        
-    }
-
-    
-    public void TriggerMusicModeEvent()
-    {
-        musicModeButtonEvent.Invoke();
+        isInMusicMode = true;
+        isInMoveMode = false;
+        isInEditMode = false;
         isInLoopMode = false;
         isInLinkMode = false;
     }
 
-    public void TriggerMoveModeEvent()
+    public void TriggerMoveMode()
     {
-        moveModeButtonEvent.Invoke();
+        isInMusicMode = false;
+        isInMoveMode = true;
+        isInEditMode = false;
         isInLoopMode = false;
         isInLinkMode = false;
     }
     
-    public void TriggerEditModeEvent()
+    public void TriggerEditMode()
     {
-        editModeButtonEvent.Invoke();
+        isInMusicMode = false;
+        isInMoveMode = false;
+        isInEditMode = true;
         isInLoopMode = false;
         isInLinkMode = false;
-
     }
     
-    public void TriggerLinkModeEvent()
+    public void TriggerLinkMode()
     {
-        linkModeButtonEvent.Invoke();
+        isInMusicMode = false;
+        isInMoveMode = false;
+        isInEditMode = false;
         isInLoopMode = false;
         isInLinkMode = true;
     }
     
-    public void TriggerLoopModeEvent()
+    public void TriggerLoopMode()
     {
-        loopModeButtonEvent.Invoke();
+        isInMusicMode = false;
+        isInMoveMode = false;
+        isInEditMode = false;
         isInLoopMode = true;
         isInLinkMode = false;
     }

@@ -32,16 +32,14 @@ public class CreateNewButton : MonoBehaviour
         }
         
         // Load the saved button details
-        LoadButtons();
+        //LoadButtons();
         
         // Get the ButtonModeManaging component from the ButtonModeManager gameobject
         _buttonModeManaging = GameObject.Find("ButtonModeManager")?.GetComponent<ButtonModeManaging>();
         
-        // Add Listeners to all current buttons
-        if (_buttonModeManaging != null) _buttonModeManaging.AddListenersToAllCurrentButtons();
     }
     
-    public void InstantiateButtonPrefabAtLocation(Vector3 spawnPosition)
+    /*public void InstantiateButtonPrefabAtLocation(Vector3 spawnPosition)
     {
         // Instantiate the buttonPrefab at buttonSpawnPosition &
         // set the instantiated buttonPrefab to be the child of buttonFolder
@@ -57,9 +55,9 @@ public class CreateNewButton : MonoBehaviour
         
         // Add a listener to the new button
         _buttonModeManaging.AddListenerToButton(newButton);
-    }
+    }*/
 
-    private void SaveButton(GameObject button)
+    /*private void SaveButton(GameObject button)
     {
         int buttonCount = PlayerPrefs.GetInt(ButtonCountKey, 0);
         PlayerPrefs.SetFloat(ButtonPositionKey + buttonCount + "_x", button.transform.localPosition.x);
@@ -68,9 +66,9 @@ public class CreateNewButton : MonoBehaviour
         PlayerPrefs.SetFloat(ButtonScaleKey + buttonCount, button.transform.localScale.x); // Assuming uniform scale
         PlayerPrefs.SetInt(ButtonCountKey, buttonCount + 1);
         PlayerPrefs.Save();
-    }
+    }*/
     
-    private void LoadButtons()
+    /*private void LoadButtons()
     {
         int buttonCount = PlayerPrefs.GetInt(ButtonCountKey, 0);
 
@@ -78,7 +76,7 @@ public class CreateNewButton : MonoBehaviour
         {
             /*float x = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_x");
             float y = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_y");
-            float z = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_z");*/
+            float z = PlayerPrefs.GetFloat(ButtonPositionKey + i + "_z");#1#
             float scale = PlayerPrefs.GetFloat(ButtonScaleKey + i);
 
             GameObject newButton = Instantiate(buttonPrefab, buttonSpawnPosition, Quaternion.identity);
@@ -86,9 +84,9 @@ public class CreateNewButton : MonoBehaviour
             
             newButton.transform.localScale = new Vector3(scale, scale, scale);
         }
-    }
+    }*/
     
-    public void SaveAllButtonPositions()
+    /*public void SaveAllButtonPositions()
     {
         int buttonCount = buttonFolder.transform.childCount;
         
@@ -104,9 +102,9 @@ public class CreateNewButton : MonoBehaviour
         PlayerPrefs.SetInt(ButtonCountKey, buttonCount);
         Debug.Log("Current buttonCountKey value: " + PlayerPrefs.GetInt(ButtonCountKey, 0));
         PlayerPrefs.Save();
-    }
+    }*/
     
-    public void DeleteButtonData(int buttonIndex)
+    /*public void DeleteButtonData(int buttonIndex)
     {
         PlayerPrefs.DeleteKey(ButtonPositionKey + buttonIndex + "_x");
         PlayerPrefs.DeleteKey(ButtonPositionKey + buttonIndex + "_y");
@@ -136,7 +134,7 @@ public class CreateNewButton : MonoBehaviour
 
         PlayerPrefs.SetInt(ButtonCountKey, buttonCount - 1);        
         PlayerPrefs.Save();
-    }
+    }*/
     
     
 }

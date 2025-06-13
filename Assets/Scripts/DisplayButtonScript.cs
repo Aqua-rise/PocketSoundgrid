@@ -12,6 +12,7 @@ public class DisplayButtonScript : MonoBehaviour, IPointerDownHandler, IDragHand
     private Vector2 pointerOffset;
 
     public CreateNewButton createNewButton;
+    public ButtonLoader buttonLoader;
 
 
     private void Awake()
@@ -56,7 +57,8 @@ public class DisplayButtonScript : MonoBehaviour, IPointerDownHandler, IDragHand
     public void OnPointerUp(PointerEventData eventData)
     {
         // Create a new button at the current position on release
-        createNewButton.InstantiateButtonPrefabAtLocation(rectTransform.position);
+        //createNewButton.InstantiateButtonPrefabAtLocation(rectTransform.position);
+        buttonLoader.CreateNewButton(rectTransform.position);
         
         rectTransform.anchoredPosition = originalPosition;
         

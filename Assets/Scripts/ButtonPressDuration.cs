@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public AudioFilePlayer audioFilePlayer;
     public Button button;
     private float longPressDuration = 0f; // Duration in seconds for a long press (to prevent errors)
     private bool isPointerDown = false;
@@ -13,15 +14,10 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
     private float pointerDownTimer = 0;
     private RectTransform buttonParentRectTransform;
     private Vector2 originalPosition;
+    private ButtonLinkingManager _buttonLinkingManager;
     
     private static int _buttonMovementIDCounter = 0;
     private int _buttonMovementID;
-
-    private bool isInMusicMode = true;
-    private bool isInMoveMode;
-    private bool isInEditMode;
-    private bool isInLinkMode;
-    private bool isInLoopMode;
 
     private TMP_Dropdown optionsMenu;
     private TMP_InputField _buttonNameInputField;
@@ -35,16 +31,11 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         
         _buttonMovementID = ++_buttonMovementIDCounter; // Assign a unique ID
         buttonParentRectTransform = button.transform.parent.GetComponent<RectTransform>();
+
+        _buttonLinkingManager = GameObject.Find("ButtonLinkManager").GetComponent<ButtonLinkingManager>();
         
-        // Get the _buttonNameInputField component from the first child of this script's gameobject
-        _buttonNameInputField = transform.gameObject.GetComponentsInChildren<TMP_InputField>()[0];
-        
-        if (_buttonNameInputField == null)
-        {
-            Debug.LogError("Could not find _buttonNameInputField component");
-        }
-        
-        LoadPosition();
+        //Hide the options menu
+        optionsMenu.gameObject.SetActive(false);
         
     }
     
@@ -52,7 +43,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
 
     void Update()
     {
-        if (isPointerDown && !isDragging && isInMoveMode)
+        if (isPointerDown && !isDragging && audioFilePlayer.isInMoveMode())
         {
             pointerDownTimer += Time.deltaTime;
             if (pointerDownTimer >= longPressDuration)
@@ -69,7 +60,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         isPointerDown = true;
         pointerDownTimer = 0;
         Debug.Log("Button was pressed");
-        if (isInEditMode)
+        if (audioFilePlayer.isInEditMode())
         {
             //Make the button un-interactable
             button.interactable = false;
@@ -126,6 +117,8 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
             localPoint.y = Mathf.Round(localPoint.y / 25) * 25;
         
             buttonParentRectTransform.anchoredPosition = localPoint;
+            
+            _buttonLinkingManager.UpdateLinePositions();
         }
     }
 
@@ -136,7 +129,6 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
     {
         if (isDragging)
         {
-
             if (pointerDownCheck)
             {
                 int originalSiblingIndex = PlayerPrefs.GetInt(_buttonMovementID + "_siblingIndex");
@@ -147,6 +139,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
                 PlayerPrefs.DeleteKey(_buttonMovementID + "_siblingIndex");
                 PlayerPrefs.Save();
             }
+            
 
             pointerDownCheck = false;
             isDragging = false;
@@ -158,12 +151,10 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
 
     public void SavePosition()
     {
-        PlayerPrefs.SetFloat(_buttonMovementID + "_x", buttonParentRectTransform.anchoredPosition.x);
-        PlayerPrefs.SetFloat(_buttonMovementID + "_y", buttonParentRectTransform.anchoredPosition.y);
-        PlayerPrefs.Save();
+        audioFilePlayer.SaveButtonPosition(buttonParentRectTransform.localPosition.x, buttonParentRectTransform.localPosition.y);
     }
 
-    void LoadPosition()
+    /*void LoadPosition()
     {
         
         Debug.Log("Loading position for button count: " + _buttonMovementID);
@@ -195,17 +186,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
             Debug.LogWarning("Button name data not found.");
         }
         
-    }
-
-    public void OnButtonInputFieldValueChanged()
-    {
-
-        
-        // Save the text input from the _buttonNameInputField to the PlayerPrefs
-        var buttonName = _buttonNameInputField.text;
-        PlayerPrefs.SetString(_buttonMovementID + "_name", buttonName);
-        PlayerPrefs.Save();
-    }
+    }*/
 
     void Reset()
     {
@@ -213,58 +194,11 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         pointerDownTimer = 0;
     }
 
-    public void DeleteButtonSaveData()
+    /*public void DeleteButtonSaveData()
     {
         PlayerPrefs.DeleteKey(_buttonMovementID + "_x");
         PlayerPrefs.DeleteKey(_buttonMovementID + "_y");
         PlayerPrefs.DeleteKey(_buttonMovementID + "_name");
         PlayerPrefs.Save();
-    }
-
-    public void MusicButtonPressed()
-    {
-        isInMusicMode = true;
-        isInMoveMode = false;
-        isInEditMode = false;
-        isInLinkMode = false;
-        isInLoopMode = false;
-    }
-    
-    public void MoveButtonPressed()
-    {
-        isInMusicMode = false;
-        isInMoveMode = true;
-        isInEditMode = false;
-        isInLinkMode = false;
-        isInLoopMode = false;
-    }
-    
-    public void EditButtonPressed()
-    {
-        isInMusicMode = false;
-        isInMoveMode = false;
-        isInEditMode = true;
-        isInLinkMode = false;
-        isInLoopMode = false;
-    }
-    
-    public void LinkButtonPressed()
-    {
-        isInMusicMode = false;
-        isInMoveMode = false;
-        isInEditMode = false;
-        isInLinkMode = true;
-        isInLoopMode = false;
-    }
-    
-    public void LoopButtonPressed()
-    {
-        isInMusicMode = false;
-        isInMoveMode = false;
-        isInEditMode = false;
-        isInLinkMode = false;
-        isInLoopMode = true;
-    }
-    
-    
+    }*/
 }
