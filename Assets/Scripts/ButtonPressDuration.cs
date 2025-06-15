@@ -43,7 +43,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
 
     void Update()
     {
-        if (isPointerDown && !isDragging && audioFilePlayer.isInMoveMode())
+        if (isPointerDown && !isDragging && audioFilePlayer.IsInMoveMode())
         {
             pointerDownTimer += Time.deltaTime;
             if (pointerDownTimer >= longPressDuration)
@@ -60,7 +60,7 @@ public class ButtonPressDuration : MonoBehaviour, IPointerDownHandler, IPointerU
         isPointerDown = true;
         pointerDownTimer = 0;
         Debug.Log("Button was pressed");
-        if (audioFilePlayer.isInEditMode())
+        if (audioFilePlayer.IsInEditMode())
         {
             //Make the button un-interactable
             button.interactable = false;

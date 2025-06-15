@@ -125,12 +125,16 @@ public class AudioFilePlayer : MonoBehaviour
                     audioSource.loop = true;
                     return;
                 }
+                
+                //Will only run if in music mode
+                if(!IsInMusicMode()){return;}
+                
                 // Set button to pausedAudio Sprite
                 _selectButtonImageComponent.sprite = pausedAudioSprite;
                 SetButtonManuallyPressed(true);
                 audioSource.Pause();
             }
-            else
+            else if(IsInMusicMode() || IsInLoopMode())
             {
                 // Set button to playingAudioSprite
                 _selectButtonImageComponent.sprite = playingAudioSprite;
@@ -140,7 +144,6 @@ public class AudioFilePlayer : MonoBehaviour
                 if (_isFirstInLink)
                 {
                     _buttonLinkingManager.StartLinkedAudio();
-                    return;
                 }
             }
         }
@@ -270,24 +273,29 @@ public class AudioFilePlayer : MonoBehaviour
     {
         return buttonID;
     }
+    
+    public bool IsInMusicMode()
+    {
+        return _buttonModeManaging.GetIsInMusicMode();
+    }
 
-    public bool isInMoveMode()
+    public bool IsInMoveMode()
     {
-        return _buttonModeManaging.isInMoveMode;
+        return _buttonModeManaging.GetIsInMoveMode();
     }
     
-    public bool isInEditMode()
+    public bool IsInEditMode()
     {
-        return _buttonModeManaging.isInEditMode;
+        return _buttonModeManaging.GetIsInEditMode();
     }
     
-    public bool isInLoopMode()
+    public bool IsInLoopMode()
     {
-        return _buttonModeManaging.isInLoopMode;
+        return _buttonModeManaging.GetIsInLoopMode();
     }
     
-    public bool isInLinkMode()
+    public bool IsInLinkMode()
     {
-        return _buttonModeManaging.isInLinkMode;
+        return _buttonModeManaging.GetIsInLinkMode();
     }
 }

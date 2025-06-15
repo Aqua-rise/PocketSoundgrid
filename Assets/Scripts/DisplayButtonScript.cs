@@ -60,7 +60,7 @@ public class DisplayButtonScript : MonoBehaviour, IPointerDownHandler, IDragHand
         //createNewButton.InstantiateButtonPrefabAtLocation(rectTransform.position);
         buttonLoader.CreateNewButton(rectTransform.position);
         
-        rectTransform.anchoredPosition = originalPosition;
+        rectTransform.anchoredPosition = originalPosition; 
         
     }
 }

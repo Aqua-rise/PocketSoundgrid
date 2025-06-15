@@ -9,7 +9,6 @@ public class ButtonModeManaging : MonoBehaviour
     public bool isInLoopMode;
     public bool isInLinkMode;
 
-
     public void TriggerMusicMode()
     {
         isInMusicMode = true;
@@ -53,5 +52,30 @@ public class ButtonModeManaging : MonoBehaviour
         isInEditMode = false;
         isInLoopMode = true;
         isInLinkMode = false;
+    }
+
+    public bool GetIsInMusicMode()
+    {
+        return isInMusicMode;
+    }
+    
+    public bool GetIsInMoveMode()
+    {
+        return isInMoveMode;
+    }
+    
+    public bool GetIsInEditMode()
+    {
+        return isInEditMode;
+    }
+    
+    public bool GetIsInLinkMode()
+    {
+        return isInLinkMode;
+    }
+    
+    public bool GetIsInLoopMode()
+    {
+        return isInLoopMode;
     }
 }
